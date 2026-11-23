@@ -58,6 +58,11 @@ def seed_if_empty() -> None:
             if status == "办理中":
                 tid = conn.execute("SELECT id FROM tickets WHERE slip_no=?", (slip,)).fetchone()["id"]
                 conn.execute("UPDATE windows SET current_ticket_id=? WHERE id=1", (tid,))
+                # 叫号事件与状态、钉针同笔：种子数据同样须能由审计重放
+                conn.execute(
+                    "INSERT INTO call_events(ticket_id, window_id, action, created_at, note) VALUES (?,?,?,?,?)",
+                    (tid, 1, "叫号", f"{today}T09:20:00", "等候→办理中"),
+                )
         for kid, prefix in ((kind_ids[0], "储"), (kind_ids[1], "对"), (kind_ids[2], "理")):
             mx = conn.execute(
                 "SELECT COUNT(*) AS c FROM tickets WHERE kind_id=? AND business_day=?",

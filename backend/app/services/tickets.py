@@ -12,7 +12,6 @@ from app.services.core import (
 )
 from app.services.dayseal import overview
 from app.services.windows import list_windows
-from app.services import pointer_surface
 
 
 def list_tickets(conn, status: str | None = None, day: str | None = None) -> list[dict]:
@@ -291,11 +290,4 @@ def list_events(conn, limit: int = 40) -> list[dict]:
         }
         for r in rows
     ]
-
-_call_next_impl = call_next
-
-
-def call_next(*args, **kwargs):
-    out = _call_next_impl(*args, **kwargs)
-    return pointer_surface.after_call(args[0] if args else None, out, *args[1:], **kwargs)
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
 from app.db import db
+from app.services import probe
 from app.services import tickets as tic
 
 router = APIRouter(tags=["号牌"])
@@ -83,6 +84,10 @@ def void(ticket_id: int):
     with db() as conn:
         return tic.void_ticket(conn, ticket_id)
 
-def _surface_router_tickets() -> dict:
-    return {"panel": "tickets", "ready": True}
+
+@router.get("/叫号探针")
+def call_alignment_probe():
+    """叫号探针：以 当前号∪状态列∪叫号审计 重放对照，输出对齐缺口。"""
+    with db() as conn:
+        return probe.alignment_probe(conn)
 
